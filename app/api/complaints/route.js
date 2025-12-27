@@ -1,23 +1,22 @@
 import clientPromise from "@/lib/complaintdb";
 import { NextResponse } from "next/server";
-import nodemailer from "nodemailer";
 
+// ✅ Email function
+async function sendEmail(newComplaint) {
+  const nodemailer = await import("nodemailer"); // import inside function
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL,
+      pass: process.env.PASSWORD,
+    },
+  });
 
-async function sendEmail(newComplaint){
-     // 📧 Send email notification
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL, // your Gmail
-        pass: process.env.PASSWORD, // your App Password
-      },
-    });
-
-    await transporter.sendMail({
-      from: process.env.EMAIL,
-      to: "haroonkhadim23@gmail.com",
-      subject: "New Complaint Received",
-      text: `
+  await transporter.sendMail({
+    from: process.env.EMAIL,
+    to: "haroonkhadim23@gmail.com",
+    subject: "New Complaint Received",
+    text: `
 A new complaint has been submitted.
 
 Name: ${newComplaint.name}
@@ -28,36 +27,31 @@ CNIC: ${newComplaint.cnic}
 Location: ${newComplaint.location}
 
 Check your dashboard for more details.
-      `,
-    });
+    `,
+  });
 }
 
+// ✅ POST route
 export async function POST(request) {
   try {
     const body = await request.json();
 
-
     if (!body.cnic || !body.name || !body.email) {
       return NextResponse.json(
-        { success: false, message: "Missing required fields (name, email, or CNIC)" },
+        { success: false, message: "Missing required fields" },
         { status: 400 }
       );
     }
 
-
     const cnicValue = String(body.cnic).trim();
-
     const client = await clientPromise;
     const db = client.db("complaintdb");
     const collection = db.collection("complaints");
 
-
     const existingComplaint = await collection.findOne({ cnic: cnicValue });
     if (existingComplaint) {
-   
-      
       return NextResponse.json(
-        { success: false, message: "Complaint already exists for this CNIC" },
+        { success: false, message: "Complaint already exists" },
         { status: 409 }
       );
     }
@@ -75,19 +69,12 @@ export async function POST(request) {
     };
 
     await collection.insertOne(newComplaint);
-   sendEmail(newComplaint).catch((err) => console.error("Email error:", err));
+    await sendEmail(newComplaint); // ✅ await for safety
 
- 
-
-    // ✅ Success
     return NextResponse.json(
-      {
-        success: true,
-        message: "Complaint submitted successfully and email sent",
-      },
+      { success: true, message: "Complaint submitted successfully" },
       { status: 201 }
     );
-
   } catch (error) {
     console.error("Error in complaint submission:", error);
     return NextResponse.json(
@@ -97,14 +84,12 @@ export async function POST(request) {
   }
 }
 
-// ✅ GET route unchanged
+// ✅ GET route
 export async function GET() {
   try {
     const client = await clientPromise;
     const db = client.db("complaintdb");
-    const collection = db.collection("complaints");
-
-    const complaints = await collection.find({}).toArray();
+    const complaints = await db.collection("complaints").find({}).toArray();
     return NextResponse.json(complaints, { status: 200 });
   } catch (error) {
     console.error("Error fetching complaints:", error);
@@ -115,36 +100,46 @@ export async function GET() {
   }
 }
 
-export async function  DELETE(request) {
-    try {
-        const body= await request.json();
-        const client =await clientPromise;
-        const db= client.db("complaintdb");
-        const collection= db.collection("complaints");
-        await collection.deleteOne({cnic:body.cnic});
-        return NextResponse.json({success:true,error:false,message:"Password deleted successfully"
-        });
-        
-    } catch (error) {
-        console.log('Api error',error)
-        return NextResponse.json({success:false,error:true,message:"Internal server error"})
-        
-    }
-} 
-export async function PUT(request){
+// ✅ DELETE route
+export async function DELETE(request) {
   try {
-    const {id,status} = await request.json();
-    const client =await clientPromise;
-    const db= client.db("complaintdb");
-    const collection= db.collection("complaints");
-    await collection.updateOne({ id:id }, { $set: { status: status } });
-    return NextResponse.json({success:true,error:false,message:"Status updated successfully"
+    const body = await request.json();
+    const client = await clientPromise;
+    const db = client.db("complaintdb");
+    const collection = db.collection("complaints");
+    await collection.deleteOne({ cnic: body.cnic });
+    return NextResponse.json({
+      success: true,
+      message: "Complaint deleted successfully",
     });
-
-    
   } catch (error) {
-    console.log('Api error',error)
-    return NextResponse.json({success:false,error:true,message:"Internal server error"})
-    
+    console.error("DELETE error:", error);
+    return NextResponse.json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+}
+
+// ✅ PUT route
+export async function PUT(request) {
+  try {
+    const { id, status } = await request.json();
+    const client = await clientPromise;
+    const db = client.db("complaintdb");
+    const collection = db.collection("complaints");
+    await collection.updateOne({ id }, { $set: { status } });
+    return NextResponse.json({
+      success: true,
+      message: "Status updated successfully",
+    });
+  } catch (error) {
+    console.error("PUT error:", error);
+    return NextResponse.json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
 }
