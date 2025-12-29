@@ -23,8 +23,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-    background-color: rgb(var(--bg));
-  color: rgb(var(--text));
+  
 }
 
 
@@ -40,25 +39,34 @@ body {
 @tailwind components;
 @tailwind utilities;
 
-/* Light mode */
+/* Light theme (default) */
 :root {
-  --bg: 255 255 255;
-  --card: 248 250 252;
-  --text: 15 23 42;
-  --muted: 71 85 105;
-  --border: 226 232 240;
+  --bg: 255 255 255;      /* main background */
+  --card: 248 250 252;    /* boxes/cards */
+  --text: 0 0 0;          /* default text */
+  --muted: 71 85 105;     /* muted text */
+  --border: 226 232 240;  /* borders */
 }
 
-/* Dark mode (system) */
+/* Dark theme (system) */
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: 2 6 23;
     --card: 15 23 42;
-    --text: 248 250 252;
+    --text: 255 255 255;      /* text becomes white automatically */
     --muted: 148 163 184;
     --border: 30 41 59;
   }
 }
 
-
-
+/* Apply globally */
+body {
+  background-color: rgb(var(--bg));
+  color: rgb(var(--text)); /* all text inherits from body */
+  transition: background-color 0.3s, color 0.3s;
+}
+.card {
+  background-color: rgb(var(--card));
+  border: 1px solid rgb(var(--border));
+  transition: background-color 0.3s, border-color 0.3s;
+}
