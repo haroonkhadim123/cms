@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: "media", // system-based
+  darkMode: "media", // system theme
   content: [
     "./app/**/*.{js,ts,jsx,tsx}",
     "./pages/**/*.{js,ts,jsx,tsx}",
@@ -8,12 +8,16 @@ export default {
   ],
   theme: {
     extend: {
-      colors: {
-        bg: "rgb(var(--bg))",
-        card: "rgb(var(--card))",
-        text: "rgb(var(--text))",
+      textColor: {
+        DEFAULT: "rgb(var(--text))", // all text inherits body
         muted: "rgb(var(--muted))",
-        border: "rgb(var(--border))",
+      },
+      backgroundColor: {
+        DEFAULT: "rgb(var(--bg))",
+        card: "rgb(var(--card))",
+      },
+      borderColor: {
+        DEFAULT: "rgb(var(--border))",
       },
     },
   },

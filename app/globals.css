@@ -63,6 +63,20 @@ body {
 body {
   background-color: rgb(var(--bg));
   color: rgb(var(--text)); /* all text inherits from body */
+  font-family: Arial, Helvetica, sans-serif;
   transition: background-color 0.3s, color 0.3s;
 }
 
+/* Optional: force all text elements to inherit color */
+body, h1, h2, h3, h4, h5, h6, p, span, a, li, label, input, textarea, button {
+  color: inherit !important;
+}
+
+/* Scrollbar hide utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
