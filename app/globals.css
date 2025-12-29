@@ -23,6 +23,8 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+    background-color: rgb(var(--bg));
+  color: rgb(var(--text));
 }
 
 
@@ -34,3 +36,29 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Light mode */
+:root {
+  --bg: 255 255 255;
+  --card: 248 250 252;
+  --text: 15 23 42;
+  --muted: 71 85 105;
+  --border: 226 232 240;
+}
+
+/* Dark mode (system) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: 2 6 23;
+    --card: 15 23 42;
+    --text: 248 250 252;
+    --muted: 148 163 184;
+    --border: 30 41 59;
+  }
+}
+
+
+
